@@ -1,0 +1,9 @@
+---
+# handlers for nerve4-chrony
+
+- name: restart chrony
+  systemd:
+    daemon_reload: true
+    name: chronyd
+    enabled: yes
+    state: restarted
