@@ -1,0 +1,29 @@
+---
+# tasks - ubuntu.yml for nerve4-chrony
+
+- name: Run chrony check
+  stat:
+    path: "{{ chrony_ubuntu_path }}"
+  register: result
+
+- name: Install default pkgs to the host
+  ansible.builtin.apt:
+    name: "chrony"
+    state: present
+  when: result.stat.exists == false
+
+- name: Make a chrony.conf bkp if it's exists
+  ansible.builtin.copy:
+    src: "{{ chrony_ubuntu_path }}"
+    dest: "{{ chrony_ubuntu_path }}.orig"
+    remote_src: yes
+  when: result.stat.exists == true
+
+- name: Overwrite chrony.conf file
+  ansible.builtin.template:
+    src: chrony.conf.j2
+    dest: "{{ chrony_ubuntu_path }}"
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart chrony
